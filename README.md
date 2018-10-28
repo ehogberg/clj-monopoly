@@ -1,6 +1,23 @@
 # clj-monopoly
 
-FIXME: description
+Monopoly done Clojure-style.  POC which hopefully serves as a thought-provoking exercise for devs working the Monopoly interview segment.
+
+## Things Needing Implementation
+
+- <del>Define a board space</del>
+- <del>Define a board</del>
+- Define a player
+- Define a game
+- <del>Determine if a player owns a monopoly of a color.</del>
+- Advance a player along the board
+- Buy a street/railroad/utility
+- Pay rent due
+- Define an action
+- Define a random action deck
+- Define a random action
+- Improve a property
+
+
 
 ## Installation
 

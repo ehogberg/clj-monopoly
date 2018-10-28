@@ -1,5 +1,6 @@
 (ns clj-monopoly.board
-  (:require [clj-monopoly.protocol :refer :all]))
+  (:require [clj-monopoly.protocol :refer :all]
+            [clojure.set :refer [difference]]))
 
 (defrecord EmptySpace [label]
   BoardSpace
@@ -69,23 +70,27 @@
    (->ActionSpace   "Luxury Tax")
    (->StreetSpace   "Boardwalk" 400 :darkblue)])
 
-(defn current-gameboard [] std-gameboard)
+(defn spaces-of-type [board t] (filter #(instance? t %) board))
 
-(defn of-type [t] (filter #(instance? t %) (current-gameboard)))
+(defn streets [board] (spaces-of-type board StreetSpace))
 
-(defn streets [] (of-type StreetSpace))
+(defn railroads [board] (spaces-of-type board RailroadSpace))
 
-(defn streets-by-color []
-  (->> (streets)
-       (reduce (fn [m v] (update-in m [(:color v)] conj (:name v) )) {})))
+(defn streets-by-color [board]
+  (->> (streets board)
+       (reduce (fn [m v] (update-in m [(:color v)] conj (:name v))) {})))
 
-(defn monopoly? [street owned-properties]
-  (let [color (:color street)
-        all-streets-for-color (set (color (streets-by-color)))
-        owned-property-names (set (map :name owned-properties))
-        diff (clojure.set/difference all-streets-for-color owned-property-names)]
-    (empty? diff)))
+(defn find-property [board property-name]
+  (->> board
+       (filter #(= (:name %) property-name))
+       first))
 
-
-
+(defn monopoly? [board street owned-properties]
+  (if (instance? StreetSpace street)
+    (let [color (:color street)
+          all-streets-for-color (set (color (streets-by-color board)))
+          owned-property-names (set (map :name owned-properties))
+          diff (difference all-streets-for-color owned-property-names)]
+      (empty? diff))
+    false))
 
