@@ -31,7 +31,7 @@
   "Has a game-over condition been met?"
   []
   (cond
-   (> (:turn-count @current-game) 10) :out-of-turns
+   (> (:turn-count @current-game) 25) :out-of-turns
    (< (count (active-players)) 2)     :player
    :else false)) 
 
@@ -66,32 +66,47 @@
         roll2 (inc (rand-int 6))
         combined-roll (+ roll1 roll2)
         new-board-position (mod (+ curr-pos combined-roll) (board-size))]
+    (println (format "Rolled %d + %d = %d" roll1 roll2 (+ roll1 roll2)))
     (if (< new-board-position curr-pos)
       (println "Passed Go..."))
     new-board-position))
 
 (defn update-board-position [player pos]
   (dosync
-   (alter @current-game update-in [:players player :board-position] pos)))
+   (alter current-game update-in
+          [:players player :board-position] (fn [_] pos))))
+
+(defn board-function [current-player current-space game]
+  (println (format "%s landed on %s"
+                   current-player
+                   current-space))
+  game)
 
 (defn take-turn []
   (let [game-over (game-over?)
         curr-player (current-player)
-        curr-board-position (get-in @current-game [:players curr-player :board-position])
+        curr-board-position (get-in @current-game
+                                    [:players curr-player :board-position])
         turn-count  (:turn-count @current-game)]
-    (println "Current board position: " curr-board-position)
+    (println
+         (format "Turn #%d [%s]" turn-count (current-player)))
     (if game-over
       (do
         (println (format "Game over: %s" game-over))
         true)
       (let [new-board-position (advance-on-board curr-board-position)
-            new-space (get-in @current-game [:board new-board-position])]
-        (println
-         (format "Turn #%d [%s]" turn-count (current-player)))
+            new-space (get-in @current-game [:board new-board-position])
+            updated-game (as-> @current-game v
+                           (board-function curr-player new-space v)
+                           (assoc-in v
+                                     [:players curr-player :board-position]
+                                     new-board-position))]
+        (println "Previous board position: " curr-board-position)
+        (println "New board position: " new-board-position)
         (println
          (format "Player landed on: %s"
                  (to-string new-space)))
-        (update-board-position curr-player new-board-position)
+        (dosync (ref-set current-game updated-game))
         (set-next-player)
         (increment-turn)
         (take-turn)))))
@@ -103,9 +118,11 @@
   (take-turn))
 
 (comment
-  (new-game)
-  (add-player :thimble)
-  (add-player :car)
+  (do
+    (new-game)
+    (add-player :thimble)
+    (add-player :car)
+    (play-game))
   (:players @current-game)q
   (mark-bankrupt :thimble)
   (active-players)
