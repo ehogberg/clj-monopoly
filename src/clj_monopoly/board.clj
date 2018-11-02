@@ -5,27 +5,42 @@
 (defrecord EmptySpace [label]
   BoardSpace
   (buyable? [_] false)
+  (process-space [s game player]
+    (println "Processing space.")
+    game)
   (to-string [s] (format "Empty space (label: %s)"
                            (:label s))))
 
 (defrecord ActionSpace [deck-name]
   BoardSpace
   (buyable? [_] false)
+  (process-space [s game player]
+    (println "Processing space.")
+    game)
   (to-string [s] (format "Deck: %s" (:deck-name s))))
 
 (defrecord StreetSpace [name price color]
   BoardSpace
   (buyable? [s] true)
+  (process-space [s game player]
+    (println "Processing space.")
+    game)
   (to-string [s] (format "Street: %s" (:name s))))
 
 (defrecord RailroadSpace [name]
   BoardSpace
   (buyable? [_] true)
+  (process-space [s game player]
+    (println "Processing space.")
+    game)
   (to-string [s] (format "Railroad: %s" (:name s))))
 
 (defrecord UtilitySpace [name]
   BoardSpace
   (buyable? [_] true)
+  (process-space [s game player]
+    (println "Processing space.")
+    game)
   (to-string [s] (format "Utility:" (:name s))))
 
 (def std-gameboard
