@@ -4,24 +4,39 @@ Monopoly done Clojure-style.  POC which hopefully serves as a thought-provoking 
 
 ## Things Needing Implementation
 
-- <del>Define a board space</del>
-- <del>Define a board</del>
-- Define a player
-- Define a game
-- <del>Determine if a player owns a monopoly of a color.</del>
-- Advance a player along the board
-- Buy a street/railroad/utility
+- ~~Define a board space~~
+- ~~Define a board~~
+- ~~Define a player~~
+- ~~Define a game~~
+- ~~Determine if a player owns a monopoly of a color.~~
+- ~~Advance a player along the board~~
+- ~~Passing Go~~
+- Buy a ...
+  - ~~street~~
+  - railroad
+  - utility
+- Auction a property.
 - Pay rent due
 - Define an action
 - Define a random action deck
 - Define a random action
 - Improve a property
+- Send a player to jail
+- Get a player out of jail
+- Correctly handle a player bankruptcy
+- Determine victory
 
 
+## Things That Would Be Interesting To Do
+
+- Pluggable strategies for players (aggressively buys everything,
+  conserves cash, ...)
 
 ## Installation
 
-Download from http://example.com/FIXME.
+
+Download from http://github.com/ehogberg/clj-monopoly
+
 
 ## Usage
 
@@ -41,13 +56,9 @@ FIXME: listing of options this app accepts.
 
 ...
 
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
-Copyright © 2018 FIXME
+Copyright © 2018-2019 Eric Hogberg
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Eclipse Public License version 1.0.

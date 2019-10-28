@@ -100,6 +100,18 @@
         (increment-turn g)
         (recur g)))))
 
+(defn owned-properties [{:keys [board]}]
+  (as-> board b
+    (group-by :owner b)
+    (dissoc b nil)))
+
+
+(defn player-properties [game player]
+  (-> game
+      (owned-properties)
+      (get player)))
+
+
 (defn play-game
   "Play a game of Monopoly"
   [game]
@@ -108,9 +120,10 @@
       (take-turns)))
 
 (comment
-  (do
-    (-> (new-game)
-        (add-player :thimble)
-        (add-player :car)
-        (play-game)))
+  (let [game (-> (new-game)
+                 (add-player :thimble)
+                 (add-player :car)
+                 (play-game))]
+    (clojure.pprint/pprint (player-properties game :thimble))
+    )
   )

@@ -2,14 +2,14 @@
   (:require [clj-monopoly.protocol :refer :all]
             [clojure.set :refer [difference]]))
 
-(defrecord EmptySpace [label]
+(defrecord EmptySpace [name]
   BoardSpace
   (buyable? [_] false)
   (process-space [s game player]
     (println "Processing space.")
     game)
-  (to-string [s] (format "Empty space (label: %s)"
-                           (:label s))))
+  (to-string [s] (format "Empty space (name: %s)"
+                           (:name s))))
 
 (defrecord ActionSpace [deck-name]
   BoardSpace
@@ -19,13 +19,40 @@
     game)
   (to-string [s] (format "Deck: %s" (:deck-name s))))
 
-(defrecord StreetSpace [name price color]
+
+(declare process-street-space board-position-of)
+
+(defrecord StreetSpace [name price color owner houses
+                        mortgaged?]
   BoardSpace
   (buyable? [s] true)
   (process-space [s game player]
-    (println "Processing space.")
-    game)
+    (purchase-space-or-charge-rent s game player))
   (to-string [s] (format "Street: %s" (:name s))))
+
+(defn get-player-info [game player-name]
+  (get-in game [:players player-name]))
+
+(defn purchase-space-or-charge-rent [{space-name :name :keys [owner price] :as space}
+                            {:keys [board] :as game} player]
+  (let [{:keys [cash] :as player-info} (get-player-info game player)]
+    (if-not owner
+      (do
+        (println "Can be bought")
+        (if (> cash price)
+          (let [space-position (board-position-of board space-name)]
+            (println (format "Space is at position %d" space-position))
+            (println (format "%s is buying the property" player))
+            (-> game
+                (update-in [:players player :cash] - price)
+                (assoc-in [:board space-position :owner] player)))))
+      (do
+        (println (format "Rent due to %s" owner))
+        game))))
+
+(defn new-street-space [name price color]
+  (->StreetSpace name price color
+                 nil 0 false))
 
 (defrecord RailroadSpace [name]
   BoardSpace
@@ -44,46 +71,46 @@
   (to-string [s] (format "Utility:" (:name s))))
 
 (def std-gameboard
-  [(->EmptySpace    "Go")
-   (->StreetSpace   "Mediterranean Avenue" 60 :darkpurple)
-   (->ActionSpace   "Community Chest")
-   (->StreetSpace   "Baltic Avenue" 60 :darkpurple)
-   (->EmptySpace    "Income Tax")
-   (->RailroadSpace "Reading Railroad")
-   (->StreetSpace   "Oriental Avenue" 100 :lightblue)
-   (->ActionSpace   "Chance")
-   (->StreetSpace   "Vermont Avenue" 100 :lightblue)
-   (->StreetSpace   "Connecticut Avenue" 120 :lightblue)
-   (->EmptySpace    "Jail")
-   (->StreetSpace   "St. Charles Place" 140 :purple)
-   (->UtilitySpace  "Electric Company")
-   (->StreetSpace   "States Avenue" 140 :purple)
-   (->StreetSpace   "Virginia Avenue" 160 :purple)
-   (->RailroadSpace "Pennsylvania Railroad")
-   (->StreetSpace   "St. James Place" 160 :orange)
-   (->ActionSpace   "Community Chest")
-   (->StreetSpace   "Tennessee Avenue" 160 :orange)
-   (->StreetSpace   "New York Avenue"  200 :orange)
-   (->EmptySpace    "Free Parking")
-   (->StreetSpace   "Kentucky Avenue" 220 :red)
-   (->ActionSpace   "Chance")
-   (->StreetSpace   "Indiana Avenue" 220 :red)
-   (->StreetSpace   "Illinois Avenue" 240 :red)
-   (->RailroadSpace "B & O Railroad")
-   (->StreetSpace   "Atlantic Avenue" 260 :yellow)
-   (->StreetSpace   "Ventnor Avenue" 260 :yellow)
-   (->UtilitySpace  "Water Works")
-   (->StreetSpace   "Marvin Gardens" 280 :yellow)
-   (->EmptySpace    "Go To Jail")
-   (->StreetSpace   "Pacific Avenue" 300 :green)
-   (->StreetSpace   "North Carolina Avenue" 300 :green)
-   (->ActionSpace   "Community Chest")
-   (->StreetSpace   "Pennsylvania Avenue" 320 :green)
-   (->RailroadSpace "Short Line")
-   (->ActionSpace   "Chance")
-   (->StreetSpace   "Park Place" 350 :darkblue)
-   (->ActionSpace   "Luxury Tax")
-   (->StreetSpace   "Boardwalk" 400 :darkblue)])
+  [(->EmptySpace       "Go")
+   (new-street-space   "Mediterranean Avenue" 60 :darkpurple)
+   (->ActionSpace      "Community Chest")
+   (new-street-space   "Baltic Avenue" 60 :darkpurple)
+   (->EmptySpace       "Income Tax")
+   (->RailroadSpace    "Reading Railroad")
+   (new-street-space   "Oriental Avenue" 100 :lightblue)
+   (->ActionSpace      "Chance")
+   (new-street-space   "Vermont Avenue" 100 :lightblue)
+   (new-street-space   "Connecticut Avenue" 120 :lightblue)
+   (->EmptySpace       "Jail")
+   (new-street-space   "St. Charles Place" 140 :purple)
+   (->UtilitySpace     "Electric Company")
+   (new-street-space   "States Avenue" 140 :purple)
+   (new-street-space   "Virginia Avenue" 160 :purple)
+   (->RailroadSpace    "Pennsylvania Railroad")
+   (new-street-space   "St. James Place" 160 :orange)
+   (->ActionSpace      "Community Chest")
+   (new-street-space   "Tennessee Avenue" 160 :orange)
+   (new-street-space   "New York Avenue"  200 :orange)
+   (->EmptySpace       "Free Parking")
+   (new-street-space   "Kentucky Avenue" 220 :red)
+   (->ActionSpace      "Chance")
+   (new-street-space   "Indiana Avenue" 220 :red)
+   (new-street-space   "Illinois Avenue" 240 :red)
+   (->RailroadSpace    "B & O Railroad")
+   (new-street-space   "Atlantic Avenue" 260 :yellow)
+   (new-street-space   "Ventnor Avenue" 260 :yellow)
+   (->UtilitySpace     "Water Works")
+   (new-street-space   "Marvin Gardens" 280 :yellow)
+   (->EmptySpace       "Go To Jail")
+   (new-street-space   "Pacific Avenue" 300 :green)
+   (new-street-space   "North Carolina Avenue" 300 :green)
+   (->ActionSpace      "Community Chest")
+   (new-street-space   "Pennsylvania Avenue" 320 :green)
+   (->RailroadSpace    "Short Line")
+   (->ActionSpace      "Chance")
+   (new-street-space   "Park Place" 350 :darkblue)
+   (->ActionSpace      "Luxury Tax")
+   (new-street-space   "Boardwalk" 400 :darkblue)])
 
 (defn spaces-of-type [board t] (filter #(instance? t %) board))
 
@@ -95,9 +122,13 @@
   (->> (streets board)
        (reduce (fn [m v] (update-in m [(:color v)] conj (:name v))) {})))
 
+(defn board-position-of [board property]
+  (first (keep-indexed #(if (= property (:name %2)) %1 )
+                       board)))
+
 (defn find-property [board property-name]
   (->> board
-       (filter #(= (:name %) property-name))
+       (filter (comp (partial = property-name) :name))
        first))
 
 (defn monopoly? [board street owned-properties]
@@ -108,4 +139,3 @@
           diff (difference all-streets-for-color owned-property-names)]
       (empty? diff))
     false))
-

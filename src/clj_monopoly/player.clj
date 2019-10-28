@@ -4,4 +4,7 @@
 
 (defn new-player [piece] (->Player piece 1500 [] 0 false))
 
+(defn player-owns [game player]
+  (filter (comp (partial = player) :owner)
+          (:board game)))
 
