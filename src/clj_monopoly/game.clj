@@ -29,9 +29,9 @@
   "Has a game-over condition been met?"
   [game]
   (cond
-   (> (:turn-count game) 25) :out-of-turns
+   (> (:turn-count game) 50) :out-of-turns
    (< (count (active-players game)) 2)     :player
-   :else false)) 
+   :else false))
 
 (defn set-play-order
   "Randomly set a turn order for players."

@@ -39,7 +39,10 @@
             (println (format "%s is buying the property" player))
             (-> game
                 (update-in [:players player :cash] - price)
-                (assoc-in [:board space-position :owner] player)))))
+                (assoc-in [:board space-position :owner] player)))
+          (do
+            (println "Not enough cash to buy property")
+            game)))
       (do
         (println (format "Rent due to %s" owner))
         game))))
