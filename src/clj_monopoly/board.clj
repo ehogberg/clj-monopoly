@@ -22,16 +22,10 @@
 
 (declare process-street-space board-position-of)
 
-(defrecord StreetSpace [name price color owner houses
-                        mortgaged?]
-  BoardSpace
-  (buyable? [s] true)
-  (process-space [s game player]
-    (purchase-space-or-charge-rent s game player))
-  (to-string [s] (format "Street: %s" (:name s))))
 
 (defn get-player-info [game player-name]
   (get-in game [:players player-name]))
+
 
 (defn purchase-space-or-charge-rent [{space-name :name :keys [owner price] :as space}
                             {:keys [board] :as game} player]
@@ -50,25 +44,44 @@
         (println (format "Rent due to %s" owner))
         game))))
 
+
+(defrecord StreetSpace [name price color owner houses
+                        mortgaged?]
+  BoardSpace
+  (buyable? [s] true)
+  (process-space [s game player]
+    (purchase-space-or-charge-rent s game player))
+  (to-string [s] (format "Street: %s" (:name s))))
+
+
 (defn new-street-space [name price color]
   (->StreetSpace name price color
                  nil 0 false))
 
-(defrecord RailroadSpace [name]
+
+(defrecord RailroadSpace [name price owner mortgaged?]
   BoardSpace
   (buyable? [_] true)
   (process-space [s game player]
-    (println "Processing space.")
-    game)
+    (purchase-space-or-charge-rent s game player))
   (to-string [s] (format "Railroad: %s" (:name s))))
 
-(defrecord UtilitySpace [name]
+
+(defn new-railroad-space [name]
+  (->RailroadSpace name 200 nil false))
+
+
+(defrecord UtilitySpace [name price owner mortgaged?]
   BoardSpace
   (buyable? [_] true)
   (process-space [s game player]
-    (println "Processing space.")
-    game)
+    (purchase-space-or-charge-rent s game player))
   (to-string [s] (format "Utility:" (:name s))))
+
+
+(defn new-utility-space [name]
+  (->UtilitySpace name 150 nil false))
+
 
 (def std-gameboard
   [(->EmptySpace       "Go")
@@ -76,17 +89,17 @@
    (->ActionSpace      "Community Chest")
    (new-street-space   "Baltic Avenue" 60 :darkpurple)
    (->EmptySpace       "Income Tax")
-   (->RailroadSpace    "Reading Railroad")
+   (new-railroad-space "Reading Railroad")
    (new-street-space   "Oriental Avenue" 100 :lightblue)
    (->ActionSpace      "Chance")
    (new-street-space   "Vermont Avenue" 100 :lightblue)
    (new-street-space   "Connecticut Avenue" 120 :lightblue)
    (->EmptySpace       "Jail")
    (new-street-space   "St. Charles Place" 140 :purple)
-   (->UtilitySpace     "Electric Company")
+   (new-utility-space  "Electric Company")
    (new-street-space   "States Avenue" 140 :purple)
    (new-street-space   "Virginia Avenue" 160 :purple)
-   (->RailroadSpace    "Pennsylvania Railroad")
+   (new-railroad-space "Pennsylvania Railroad")
    (new-street-space   "St. James Place" 160 :orange)
    (->ActionSpace      "Community Chest")
    (new-street-space   "Tennessee Avenue" 160 :orange)
@@ -96,17 +109,17 @@
    (->ActionSpace      "Chance")
    (new-street-space   "Indiana Avenue" 220 :red)
    (new-street-space   "Illinois Avenue" 240 :red)
-   (->RailroadSpace    "B & O Railroad")
+   (new-railroad-space "B & O Railroad")
    (new-street-space   "Atlantic Avenue" 260 :yellow)
    (new-street-space   "Ventnor Avenue" 260 :yellow)
-   (->UtilitySpace     "Water Works")
+   (new-utility-space  "Water Works")
    (new-street-space   "Marvin Gardens" 280 :yellow)
    (->EmptySpace       "Go To Jail")
    (new-street-space   "Pacific Avenue" 300 :green)
    (new-street-space   "North Carolina Avenue" 300 :green)
    (->ActionSpace      "Community Chest")
    (new-street-space   "Pennsylvania Avenue" 320 :green)
-   (->RailroadSpace    "Short Line")
+   (new-railroad-space "Short Line")
    (->ActionSpace      "Chance")
    (new-street-space   "Park Place" 350 :darkblue)
    (->ActionSpace      "Luxury Tax")

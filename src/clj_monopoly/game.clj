@@ -124,6 +124,6 @@
                  (add-player :thimble)
                  (add-player :car)
                  (play-game))]
-    (clojure.pprint/pprint (player-properties game :thimble))
+    (clojure.pprint/pprint (player-properties game :car))
     )
   )

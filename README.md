@@ -13,8 +13,8 @@ Monopoly done Clojure-style.  POC which hopefully serves as a thought-provoking 
 - ~~Passing Go~~
 - Buy a ...
   - ~~street~~
-  - railroad
-  - utility
+  - ~~railroad~~
+  - ~~utility~~
 - Auction a property.
 - Pay rent due
 - Define an action
