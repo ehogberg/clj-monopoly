@@ -30,7 +30,7 @@
   [game]
   (cond
    (> (:turn-count game) 50) :out-of-turns
-   (< (count (active-players game)) 2)     :player
+   (< (count (active-players game)) 2) :player
    :else false))
 
 (defn set-play-order
@@ -99,6 +99,7 @@
         (set-next-player g)
         (increment-turn g)
         (recur g)))))
+
 
 (defn owned-properties [{:keys [board]}]
   (as-> board b

@@ -1,5 +1,6 @@
 (ns clj-monopoly.board
   (:require [clj-monopoly.protocol :refer :all]
+            [clj-monopoly.player :refer [buy-property?]]
             [clojure.set :refer [difference]]))
 
 (defrecord EmptySpace [name]
@@ -27,15 +28,15 @@
   (get-in game [:players player-name]))
 
 
-(defn purchase-space-or-charge-rent [{space-name :name :keys [owner price] :as space}
-                            {:keys [board] :as game} player]
+(defn purchase-space-or-charge-rent
+  [{space-name :name :keys [owner price] :as space}
+   {:keys [board] :as game} player]
   (let [{:keys [cash] :as player-info} (get-player-info game player)]
     (if-not owner
       (do
         (println "Can be bought")
-        (if (> cash price)
+        (if (buy-property? player-info space game)
           (let [space-position (board-position-of board space-name)]
-            (println (format "Space is at position %d" space-position))
             (println (format "%s is buying the property" player))
             (-> game
                 (update-in [:players player :cash] - price)

@@ -11,16 +11,19 @@ Monopoly done Clojure-style.  POC which hopefully serves as a thought-provoking 
 - ~~Determine if a player owns a monopoly of a color.~~
 - ~~Advance a player along the board~~
 - ~~Passing Go~~
-- Buy a ...
+- ~~Buy a ...~~
   - ~~street~~
   - ~~railroad~~
   - ~~utility~~
 - Auction a property.
 - Pay rent due
 - Define an action
-- Define a random action deck
-- Define a random action
+- Define a deck of actions
+- Choose an action from a deck
+- Apply an action to a player
 - Improve a property
+  - Add house
+  - Add hotel
 - Send a player to jail
 - Get a player out of jail
 - Correctly handle a player bankruptcy
