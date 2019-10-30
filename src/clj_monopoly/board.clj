@@ -12,6 +12,7 @@
   (to-string [s] (format "Empty space (name: %s)"
                            (:space-name s))))
 
+
 (defrecord ActionSpace [deck-name]
   BoardSpace
   (buyable? [_] false)
@@ -146,6 +147,7 @@
    (->ActionSpace      "Luxury Tax")
    (new-street-space   "Boardwalk" 400 :darkblue)])
 
+
 (defn spaces-of-type [board t] (filter #(instance? t %) board))
 
 
@@ -161,15 +163,19 @@
    {}
    (streets board)))
 
+
 (defn board-position-of [board property]
   (first (keep-indexed #(if (= property (:space-name %2)) %1 )
                        board)))
+
 
 (defn find-property [board property-name]
   (->> board
        (filter (comp (partial = property-name) :space-name))
        first))
 
+
+;; FIXME:  Probably a much more efficient way to do this check.
 (defn monopoly? [board street owned-properties]
   (if (instance? StreetSpace street)
     (let [color (:color street)

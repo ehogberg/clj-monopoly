@@ -129,6 +129,7 @@
       (set-play-order)
       (take-turns)))
 
+
 (comment
   (let [game (-> (new-game)
                  (add-player :thimble)
