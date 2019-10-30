@@ -14,6 +14,7 @@
               (new-player game-piece))
       (update :play-order #(conj % game-piece))))
 
+
 (defn active-players
   "Returns a list of all players who haven't
    yet been marked as bankrupt."
@@ -33,17 +34,21 @@
    (< (count (active-players game)) 2) :player
    :else false))
 
+
 (defn set-play-order
   "Randomly set a turn order for players."
   [game]
   (update game :play-order shuffle))
 
+
 (defn set-next-player [game]
   (update game :play-order
           #(vec (concat (rest %) [(first %)]))))
 
+
 (defn increment-turn [game]
   (update game :turn-count inc))
+
 
 (defn current-player
   "Who is the current player?"
@@ -52,7 +57,9 @@
       :play-order
       first))
 
+
 (defn board-size [game] (count (:board game)))
+
 
 (defn advance-on-board
   "Roll 2 'dice', add the sum to the player's current board position.
@@ -67,6 +74,7 @@
     (println (format "Rolled %d + %d = %d" roll1 roll2 (+ roll1 roll2)))
     new-board-position))
 
+
 (defn process-go
   "If the specified player passed Go, pay them $200"
   [game player old-pos new-pos]
@@ -75,6 +83,7 @@
       (println (format "Player %s passed Go; receives $200" player))
       (update-in game [:players player :cash] + 200))
     game))
+
 
 (defn take-turns [game]
   (if-let [game-over (game-over? game)]

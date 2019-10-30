@@ -3,14 +3,14 @@
             [clj-monopoly.player :refer [buy-property?]]
             [clojure.set :refer [difference]]))
 
-(defrecord EmptySpace [name]
+(defrecord EmptySpace [space-name]
   BoardSpace
   (buyable? [_] false)
   (process-space [s game player]
     (println "Processing space.")
     game)
   (to-string [s] (format "Empty space (name: %s)"
-                           (:name s))))
+                           (:space-name s))))
 
 (defrecord ActionSpace [deck-name]
   BoardSpace
@@ -28,8 +28,20 @@
   (get-in game [:players player-name]))
 
 
+(defn calculate-rent [game property]
+  100)
+
+
+(defn transfer-funds [amount from to game]
+  (if (not= from to)
+    (-> game
+        (update-in [:players from :cash] - amount)
+        (update-in [:players to :cash] + amount))
+    game))
+
+
 (defn purchase-space-or-charge-rent
-  [{space-name :name :keys [owner price] :as space}
+  [{:keys [owner price space-name] :as space}
    {:keys [board] :as game} player]
   (let [{:keys [cash] :as player-info} (get-player-info game player)]
     (if-not owner
@@ -44,47 +56,52 @@
           (do
             (println "Not enough cash to buy property")
             game)))
-      (do
-        (println (format "Rent due to %s" owner))
-        game))))
+      (if (not= player owner)
+        (do
+          (println (format "Rent due to %s" owner))
+          (-> game
+              (calculate-rent space)
+              (transfer-funds player owner game)))
+        (do
+          (println "No rent due; player owns the property")
+          game)))))
 
 
-(defrecord StreetSpace [name price color owner houses
-                        mortgaged?]
+(defrecord StreetSpace [space-name price color owner houses mortgaged?]
   BoardSpace
   (buyable? [s] true)
   (process-space [s game player]
     (purchase-space-or-charge-rent s game player))
-  (to-string [s] (format "Street: %s" (:name s))))
+  (to-string [s] (format "Street: %s" (:space-name s))))
 
 
-(defn new-street-space [name price color]
-  (->StreetSpace name price color
+(defn new-street-space [street-name price color]
+  (->StreetSpace street-name price color
                  nil 0 false))
 
 
-(defrecord RailroadSpace [name price owner mortgaged?]
+(defrecord RailroadSpace [space-name price owner mortgaged?]
   BoardSpace
   (buyable? [_] true)
   (process-space [s game player]
     (purchase-space-or-charge-rent s game player))
-  (to-string [s] (format "Railroad: %s" (:name s))))
+  (to-string [s] (format "Railroad: %s" (:space-name s))))
 
 
-(defn new-railroad-space [name]
-  (->RailroadSpace name 200 nil false))
+(defn new-railroad-space [railroad-name]
+  (->RailroadSpace railroad-name 200 nil false))
 
 
-(defrecord UtilitySpace [name price owner mortgaged?]
+(defrecord UtilitySpace [space-name price owner mortgaged?]
   BoardSpace
   (buyable? [_] true)
   (process-space [s game player]
     (purchase-space-or-charge-rent s game player))
-  (to-string [s] (format "Utility:" (:name s))))
+  (to-string [s] (format "Utility:" (:space-name s))))
 
 
-(defn new-utility-space [name]
-  (->UtilitySpace name 150 nil false))
+(defn new-utility-space [utility-name]
+  (->UtilitySpace utility-name 150 nil false))
 
 
 (def std-gameboard
@@ -131,28 +148,33 @@
 
 (defn spaces-of-type [board t] (filter #(instance? t %) board))
 
+
 (defn streets [board] (spaces-of-type board StreetSpace))
+
 
 (defn railroads [board] (spaces-of-type board RailroadSpace))
 
+
 (defn streets-by-color [board]
-  (->> (streets board)
-       (reduce (fn [m v] (update-in m [(:color v)] conj (:name v))) {})))
+  (reduce
+   (fn [m v] (update-in m [(:color v)] conj (:space-name v)))
+   {}
+   (streets board)))
 
 (defn board-position-of [board property]
-  (first (keep-indexed #(if (= property (:name %2)) %1 )
+  (first (keep-indexed #(if (= property (:space-name %2)) %1 )
                        board)))
 
 (defn find-property [board property-name]
   (->> board
-       (filter (comp (partial = property-name) :name))
+       (filter (comp (partial = property-name) :space-name))
        first))
 
 (defn monopoly? [board street owned-properties]
   (if (instance? StreetSpace street)
     (let [color (:color street)
           all-streets-for-color (set (color (streets-by-color board)))
-          owned-property-names (set (map :name owned-properties))
+          owned-property-names (set (map :space-name owned-properties))
           diff (difference all-streets-for-color owned-property-names)]
       (empty? diff))
     false))

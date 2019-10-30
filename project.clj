@@ -6,4 +6,6 @@
   :dependencies [[org.clojure/clojure "1.8.0"]]
   :main ^:skip-aot clj-monopoly.core
   :target-path "target/%s"
+  :plugins [[lein-bikeshed "0.5.2"]
+            [lein-kibit "0.1.7"]]
   :profiles {:uberjar {:aot :all}})
