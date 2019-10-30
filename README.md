@@ -16,7 +16,9 @@ Monopoly done Clojure-style.  POC which hopefully serves as a thought-provoking 
   - ~~railroad~~
   - ~~utility~~
 - Auction a property.
-- Pay rent due
+- Pay rent due...
+  - ~~the simplest way possible~~
+  - the correct way
 - Define an action
 - Define a deck of actions
 - Choose an action from a deck
