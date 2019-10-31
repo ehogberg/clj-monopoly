@@ -35,9 +35,11 @@
 
 (defn transfer-funds [amount from to game]
   (if (not= from to)
-    (-> game
-        (update-in [:players from :cash] - amount)
-        (update-in [:players to :cash] + amount))
+    (do
+      (println "Transferring $" amount " from " from " to " to)
+      (-> game
+          (update-in [:players from :cash] - amount)
+          (update-in [:players to :cash] + amount)))
     game))
 
 

@@ -30,7 +30,7 @@
   "Has a game-over condition been met?"
   [game]
   (cond
-   (> (:turn-count game) 50) :out-of-turns
+   ;;(> (:turn-count game) 50) :out-of-turns
    (< (count (active-players game)) 2) :player
    :else false))
 
@@ -75,6 +75,12 @@
     new-board-position))
 
 
+(defn bankruptcy-check [game {:keys [cash piece] :as player}]
+  (println "Bankruptcy check:  available cash = " cash)
+  (if (neg? cash)
+    (mark-bankrupt game piece)
+    game))
+
 (defn process-go
   "If the specified player passed Go, pay them $200"
   [game player old-pos new-pos]
@@ -105,6 +111,7 @@
                   new-board-position)
         (process-go g curr-player curr-board-position new-board-position)
         (process-space new-space g curr-player)
+        (bankruptcy-check g (get-in g [:players curr-player]))
         (set-next-player g)
         (increment-turn g)
         (recur g)))))
