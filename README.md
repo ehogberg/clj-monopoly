@@ -28,7 +28,7 @@ Monopoly done Clojure-style.  POC which hopefully serves as a thought-provoking 
   - Add hotel
 - Send a player to jail
 - Get a player out of jail
-- Correctly handle a player bankruptcy
+- ~~Correctly handle a player bankruptcy~~
 - Determine victory
 
 

@@ -9,6 +9,7 @@
   (process-space [s game player]
     (println "Processing space.")
     game)
+  (rent-due [_ _] 0)
   (to-string [s] (format "Empty space (name: %s)"
                            (:space-name s))))
 
@@ -19,6 +20,7 @@
   (process-space [s game player]
     (println "Processing space.")
     game)
+  (rent-due [_ _] 0)
   (to-string [s] (format "Deck: %s" (:deck-name s))))
 
 
@@ -62,9 +64,8 @@
       (if (not= player owner)
         (do
           (println (format "Rent due to %s" owner))
-          (-> game
-              (calculate-rent space)
-              (transfer-funds player owner game)))
+          (let [rent (rent-due space game)]
+            ((transfer-funds rent player owner game))))
         (do
           (println "No rent due; player owns the property")
           game)))))
@@ -75,6 +76,7 @@
   (buyable? [s] true)
   (process-space [s game player]
     (purchase-space-or-charge-rent s game player))
+  (rent-due [s game] 100)
   (to-string [s] (format "Street: %s" (:space-name s))))
 
 
@@ -88,6 +90,7 @@
   (buyable? [_] true)
   (process-space [s game player]
     (purchase-space-or-charge-rent s game player))
+  (rent-due [s game] 100)
   (to-string [s] (format "Railroad: %s" (:space-name s))))
 
 
@@ -100,6 +103,7 @@
   (buyable? [_] true)
   (process-space [s game player]
     (purchase-space-or-charge-rent s game player))
+  (rent-due [s game] 100)
   (to-string [s] (format "Utility:" (:space-name s))))
 
 
